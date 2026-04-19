@@ -1,0 +1,27 @@
+package com.example.backend.Entities;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Project {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String type;
+
+    @Column(length = 2000)
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "resume_id")
+    private Resume resume;
+}
