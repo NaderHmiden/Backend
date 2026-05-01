@@ -9,15 +9,26 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    public String extractUserId(String token) {
-        return getClaims(token).getSubject();
+    // equivalent to generateToken(userId) in Node.js
+    public String generateToken(Long userId) {
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000)) // 7d
+                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+                .compact();
+    }
+
+    public Long extractUserId(String token) {
+        return Long.parseLong(getClaims(token).getSubject());
     }
 
     public boolean validateToken(String token) {
-        getClaims(token); // throws if invalid
+        getClaims(token);
         return true;
     }
 

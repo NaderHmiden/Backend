@@ -16,6 +16,13 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
 
+    // ADD THIS - skip filter for public routes
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.equals("/api/users/register") || path.equals("/api/users/login");
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
@@ -24,25 +31,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = request.getHeader("Authorization");
 
-        // No token → 401
         if (token == null || token.isBlank()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Unauthorized\"}");
             return;
         }
 
         try {
-            // Strip "Bearer " prefix if present
             if (token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
 
-            String userId = jwtUtil.extractUserId(token);
-
-            // Attach userId to request (equivalent to req.userId = decoded.userId)
+            Long userId = jwtUtil.extractUserId(token); // fix bug 2 here too
             request.setAttribute("userId", userId);
-
-            filterChain.doFilter(request, response); // next()
+            filterChain.doFilter(request, response);
 
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

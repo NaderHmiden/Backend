@@ -17,11 +17,15 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // public routes
-                        .anyRequest().authenticated() // everything else → protected
-                )
+                        .requestMatchers("/api/users/register", "/api/users/login").permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10); // same as bcrypt.hash(password, 10)
     }
 }
