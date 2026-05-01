@@ -19,7 +19,7 @@ public class Education {
     private String degree;
     private String field;
     private String graduationDate;
-    private String gpa;
+
 
     @ManyToOne
     @JoinColumn(name = "resume_id")
