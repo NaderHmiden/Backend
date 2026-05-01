@@ -4,6 +4,10 @@ import com.example.backend.DTOs.LoginRequest;
 import com.example.backend.DTOs.RegisterRequest;
 import com.example.backend.Services.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor

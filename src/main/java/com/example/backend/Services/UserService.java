@@ -8,6 +8,15 @@ import com.example.backend.Repositories.ResumeRepo;
 import com.example.backend.Repositories.UserRepo;
 import com.example.backend.security.JwtUtil;
 
+import com.example.backend.DTOs.RegisterRequest;
+import com.example.backend.Entities.Resume;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {

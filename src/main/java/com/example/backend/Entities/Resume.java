@@ -21,7 +21,7 @@ public class Resume {
 
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userId")
     private User user;
 
     private String title = "Untitled Resume";
