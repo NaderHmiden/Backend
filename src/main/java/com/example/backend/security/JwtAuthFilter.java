@@ -25,32 +25,37 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain)
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = request.getHeader("Authorization");
+        String path = request.getServletPath();
 
-        if (token == null || token.isBlank()) {
+        // ✅ SKIP public routes completely
+        if (path.equals("/api/users/register") || path.equals("/api/users/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"message\": \"Unauthorized\"}");
+            response.getWriter().write("{\"message\":\"Missing or invalid token\"}");
             return;
         }
 
         try {
-            if (token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
+            String token = authHeader.substring(7);
 
-            Long userId = jwtUtil.extractUserId(token); // fix bug 2 here too
+            Long userId = jwtUtil.extractUserId(token);
             request.setAttribute("userId", userId);
+
             filterChain.doFilter(request, response);
 
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"message\": \"" + e.getMessage() + "\"}");
+            response.getWriter().write("{\"message\":\"Invalid token\"}");
         }
     }
 }

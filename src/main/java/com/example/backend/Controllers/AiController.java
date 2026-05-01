@@ -1,5 +1,5 @@
 package com.example.backend.Controllers;
 
-public class AIController {
+public class AiController {
 
 }
