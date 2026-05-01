@@ -1,6 +1,6 @@
 package com.example.backend.Controllers;
 
-im
+import jakarta.servlet.http.HttpServletRequest; // ADD THIS
 import com.example.backend.DTOs.ResumeRequestDTO;
 import com.example.backend.DTOs.ResumeResponseDTO;
 import com.example.backend.Entities.Resume;
@@ -18,47 +18,36 @@ public class ResumeController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<ResumeResponseDTO> createResume(@RequestParam Long userId,
-                                          @RequestBody String title) {
-        ResumeResponseDTO resume = resumeService.createResume(userId, title);
-        return ResponseEntity.status(201)
-                .body(ResumeResponseDTO.builder().build());
+    public ResponseEntity<ResumeResponseDTO> createResume(
+            HttpServletRequest request,
+            @RequestBody ResumeRequestDTO dto) {
+
+        Long userId = (Long) request.getAttribute("userId"); // extracted by JwtAuthFilter
+        ResumeResponseDTO resume = resumeService.createResume(userId, dto.getTitle());
+        return ResponseEntity.status(201).body(resume);
     }
-
-
     @DeleteMapping("/delete/{resumeId}")
-    public ResponseEntity<?> deleteResume(@RequestParam Long userId,
+    public ResponseEntity<?> deleteResume(HttpServletRequest request,
                                           @PathVariable Long resumeId) {
+        Long userId = (Long) request.getAttribute("userId");
         resumeService.deleteResume(userId, resumeId);
         return ResponseEntity.ok("Resume deleted successfully");
     }
 
-
     @GetMapping("/{resumeId}")
-    public ResponseEntity<?> getResume(@RequestParam Long userId,
+    public ResponseEntity<?> getResume(HttpServletRequest request,
                                        @PathVariable Long resumeId) {
-        return ResponseEntity.ok(
-                resumeService.getResumeById(userId, resumeId)
-        );
+        Long userId = (Long) request.getAttribute("userId");
+        return ResponseEntity.ok(resumeService.getResumeById(userId, resumeId));
     }
-
-
-    @GetMapping("/public/{resumeId}")
-    public ResponseEntity<?> getPublicResume(@PathVariable Long resumeId) {
-        return ResponseEntity.ok(
-                resumeService.getPublicResume(resumeId)
-        );
-    }
-
 
     @PutMapping("/update/{resumeId}")
-    public ResponseEntity<?> updateResume(@RequestParam Long userId,
+    public ResponseEntity<?> updateResume(HttpServletRequest request,
                                           @PathVariable Long resumeId,
                                           @RequestBody ResumeRequestDTO dto) {
-
-        ResumeResponseDTO updated =
-                resumeService.updateResume(userId, resumeId, dto);
-
-        return ResponseEntity.ok(updated);
+        Long userId = (Long) request.getAttribute("userId");
+        return ResponseEntity.ok(resumeService.updateResume(userId, resumeId, dto));
     }
+
+
 }

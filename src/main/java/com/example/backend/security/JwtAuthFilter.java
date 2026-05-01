@@ -11,6 +11,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -50,6 +53,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             Long userId = jwtUtil.extractUserId(token);
             request.setAttribute("userId", userId);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userId, null, List.of());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             filterChain.doFilter(request, response);
 
