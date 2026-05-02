@@ -2,7 +2,9 @@ package com.example.backend.DTOs;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;  // ← add this
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @NoArgsConstructor
 public class PersonnalInfoDTO {

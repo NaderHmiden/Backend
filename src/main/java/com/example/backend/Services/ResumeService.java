@@ -72,7 +72,7 @@ public class ResumeService {
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new RuntimeException("Resume not found"));
 
-        if (!resume.isPublic()) {
+        if (!resume.getIsPublic()) {
             throw new RuntimeException("Not public");
         }
 
@@ -90,9 +90,18 @@ public class ResumeService {
         }
 
         resume.setTitle(dto.getTitle());
-        resume.setPublic(dto.isPublic());
+        resume.setIsPublic(dto.isPublic());
         resume.setProfessionalSummary(dto.getProfessionalSummary());
-        resume.setSkills(dto.getSkills());
+        if (dto.getSkills() != null) {
+            resume.setSkills(dto.getSkills());
+        }
+        if (dto.getTemplate() != null) {
+            resume.setTemplate(dto.getTemplate());
+        }
+
+        if (dto.getAccentColor() != null) {
+            resume.setAccentColor(dto.getAccentColor());
+        }
 
         if (dto.getPersonalInfo() != null) {
             PersonnalInfoDTO pi = dto.getPersonalInfo();
@@ -282,7 +291,7 @@ public class ResumeService {
         return ResumeResponseDTO.builder()
                 .id(resume.getId())
                 .title(resume.getTitle())
-                .isPublic(resume.isPublic())
+                .isPublic(resume.getIsPublic())
                 .professionalSummary(resume.getProfessionalSummary())
                 .skills(resume.getSkills())
                 .personalInfo(personalInfoDTO)

@@ -5,8 +5,11 @@ import lombok.Data;
 import java.util.List;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ResumeRequestDTO {
 
     private String title;

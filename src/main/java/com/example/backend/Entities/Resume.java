@@ -29,7 +29,7 @@ public class Resume {
 
     private String title = "Untitled Resume";
 
-    private boolean isPublic = false;
+    private Boolean isPublic;
 
     private String template = "classic";
 

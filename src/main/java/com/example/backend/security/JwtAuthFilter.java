@@ -23,7 +23,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
         System.out.println("🔍 Request path: " + path); // ✅ add this
-        return path.equals("/api/users/register") || path.equals("/api/users/login");
+        return path.equals("/api/users/register") || path.equals("/api/users/login")||path.startsWith("/api/resumes/public/");
     }
 
     @Override
@@ -35,7 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         // ✅ SKIP public routes completely
-        if (path.equals("/api/users/register") || path.equals("/api/users/login")) {
+        if (path.equals("/api/users/register") || path.equals("/api/users/login")||path.startsWith("/api/resumes/public/")) {
             filterChain.doFilter(request, response);
             return;
         }
