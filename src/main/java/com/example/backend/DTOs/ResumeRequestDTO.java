@@ -3,6 +3,8 @@ package com.example.backend.DTOs;
 import lombok.Data;
 
 import java.util.List;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @Data
 public class ResumeRequestDTO {

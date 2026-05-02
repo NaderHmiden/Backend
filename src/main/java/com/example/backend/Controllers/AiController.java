@@ -40,20 +40,22 @@ public class AiController {
 
             String aiResponse = aiService.extractResumeData(resumeText);
 
-            String mlResponse = mlService.analyzeResume(resumeText);
 
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode aiNode = (ObjectNode) mapper.readTree(
                     aiResponse.replaceAll("```json|```", "").trim()
             );
-            JsonNode mlNode = mapper.readTree(mlResponse);
-            aiNode.set("ml_analysis", mlNode.get("ml_analysis"));
+
 
             ResumeResponseDTO saved = resumeService.createResumeFromAi(userId, title, aiNode);
-            return ResponseEntity.status(201).body(saved);
 
+            return ResponseEntity.status(201).body(Map.of(
+                    "resume", saved,
+                    "message", "Resume uploaded successfully"
+            ));
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500)
                     .body(Map.of("message", e.getMessage()));
         }

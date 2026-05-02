@@ -3,9 +3,12 @@ package com.example.backend.Entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
 
 
 import java.util.List;
+import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "resumes")
@@ -46,12 +49,15 @@ public class Resume {
     private PersonnalInfo personalInfo;
 
 
-    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Experience> experience;
 
-    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Project> project;
 
-    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Education> education;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

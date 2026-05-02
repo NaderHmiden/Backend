@@ -33,5 +33,6 @@ public class ResumeResponseDTO {
     private List<EducationDTO> educations;
 
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 }

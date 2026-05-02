@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
 import com.example.backend.DTOs.*;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -77,9 +79,8 @@ public class ResumeService {
         return mapToDTO(resume);
     }
 
-
-    public ResumeResponseDTO updateResume(Long userId, Long resumeId,
-                                          ResumeRequestDTO dto) {
+    @Transactional
+    public ResumeResponseDTO updateResume(Long userId, Long resumeId, ResumeRequestDTO dto) {
 
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new RuntimeException("Resume not found"));
@@ -93,10 +94,57 @@ public class ResumeService {
         resume.setProfessionalSummary(dto.getProfessionalSummary());
         resume.setSkills(dto.getSkills());
 
+        if (dto.getPersonalInfo() != null) {
+            PersonnalInfoDTO pi = dto.getPersonalInfo();
+            resume.setPersonalInfo(new PersonnalInfo(
+                    pi.getImage(), pi.getFullName(), pi.getProfession(),
+                    pi.getEmail(), pi.getPhone(), pi.getLocation(),
+                    pi.getLinkedin(), pi.getWebsite()
+            ));
+        }
+
+        if (dto.getExperiences() != null) {
+            resume.getExperience().clear();
+            dto.getExperiences().forEach(expDto -> {
+                Experience e = new Experience();
+                e.setCompany(expDto.getCompany());
+                e.setPosition(expDto.getPosition());
+                e.setStartDate(expDto.getStartDate());
+                e.setEndDate(expDto.getEndDate());
+                e.setDescription(expDto.getDescription());
+                e.setCurrent(expDto.isCurrent());
+                e.setResume(resume);
+                resume.getExperience().add(e);
+            });
+        }
+
+        if (dto.getEducations() != null) {
+            resume.getEducation().clear();
+            dto.getEducations().forEach(eduDto -> {
+                Education ed = new Education();
+                ed.setInstitution(eduDto.getInstitution());
+                ed.setDegree(eduDto.getDegree());
+                ed.setField(eduDto.getField());
+                ed.setGraduationDate(eduDto.getGraduationDate());
+                ed.setResume(resume);
+                resume.getEducation().add(ed);
+            });
+        }
+
+        if (dto.getProjects() != null) {
+            resume.getProject().clear();
+            dto.getProjects().forEach(projDto -> {
+                Project p = new Project();
+                p.setName(projDto.getName());
+                p.setType(projDto.getType());
+                p.setDescription(projDto.getDescription());
+                p.setResume(resume);
+                resume.getProject().add(p);
+            });
+        }
+
         return mapToDTO(resumeRepository.save(resume));
     }
-
-
     public ResumeResponseDTO createResumeFromAi(Long userId, String title, JsonNode data) {
 
         User user = userRepository.findById(userId)

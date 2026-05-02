@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -85,7 +86,16 @@ public class UserService {
     // GET /api/users/resumes
     public ResponseEntity<?> getUserResumes(Long userId) {
         List<Resume> resumes = resumeRepository.findByUserId(userId);
-        return ResponseEntity.ok(Map.of("resumes", resumes));
+        List<Map<String, Object>> result = resumes.stream()
+                .map(r -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", r.getId());
+                    map.put("title", r.getTitle());
+                    map.put("updatedAt", r.getUpdatedAt() != null ? r.getUpdatedAt().toString() : "");
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(Map.of("resumes", result));
     }
 
     // Helper: User → UserDTO

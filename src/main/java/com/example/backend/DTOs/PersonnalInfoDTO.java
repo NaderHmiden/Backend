@@ -1,8 +1,10 @@
 package com.example.backend.DTOs;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;  // ← add this
 
 @Data
+@NoArgsConstructor
 public class PersonnalInfoDTO {
 
     private String image;
