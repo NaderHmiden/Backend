@@ -39,4 +39,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10); // same as bcrypt.hash(password, 10)
     }
+
+
 }

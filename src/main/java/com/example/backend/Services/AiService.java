@@ -5,17 +5,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class AiService {
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final WebClient webClient;
     private final String model;
 
     public AiService(
-            @Value("${GEMINI_BASE_URL}") String baseUrl,
-            @Value("${GEMINI_API_KEY}") String apiKey,
-            @Value("${GEMINI_MODEL}") String model
+            @Value("${gemini.base.url}") String baseUrl,
+            @Value("${gemini.api.key}") String apiKey,
+            @Value("${gemini.model}") String model
     ) {
         this.model = model;
 
@@ -26,9 +29,8 @@ public class AiService {
                 .build();
     }
 
-    // =========================================
-    // ✨ 1. Improve Summary
-    // =========================================
+    // Improve Summary
+
     public String enhanceSummary(String userContent) {
 
         String systemPrompt = """
@@ -40,9 +42,7 @@ public class AiService {
         return callAI(systemPrompt, userContent);
     }
 
-    // =========================================
-    // ✨ 2. Improve Job Description
-    // =========================================
+    // 2. Improve Job Description
     public String enhanceJobDescription(String userContent) {
 
         String systemPrompt = """
@@ -54,49 +54,64 @@ public class AiService {
         return callAI(systemPrompt, userContent);
     }
 
-    // =========================================
-    // 📄 3. Extract Resume (JSON)
-    // =========================================
+    // Extract Resume (JSON)
     public String extractResumeData(String resumeText) {
 
         String systemPrompt = """
-                You are an AI that extracts structured resume data.
+            You are an expert AI Agent to extract data from a resume.
+            Return ONLY valid JSON with no additional text before or after.
+            """;
 
-                Return ONLY valid JSON:
+        String userPrompt = """
+            Extract data from this resume: %s
 
+            Return ONLY this JSON structure:
+            {
+              "professional_summary": "",
+              "skills": [],
+              "personal_info": {
+                "image": "",
+                "full_name": "",
+                "profession": "",
+                "email": "",
+                "phone": "",
+                "location": "",
+                "linkedin": "",
+                "website": ""
+              },
+              "experience": [
                 {
-                  "professional_summary": "",
-                  "skills": [],
-                  "personal_info": {
-                    "full_name": "",
-                    "email": "",
-                    "phone": ""
-                  },
-                  "experience": [
-                    {
-                      "company": "",
-                      "position": "",
-                      "description": ""
-                    }
-                  ],
-                  "projects": [
-                    {
-                      "name": "",
-                      "description": ""
-                    }
-                  ]
+                  "company": "",
+                  "position": "",
+                  "start_date": "",
+                  "end_date": "",
+                  "description": "",
+                  "is_current": ""
                 }
-                """;
+              ],
+              "project": [
+                {
+                  "name": "",
+                  "type": "",
+                  "description": ""
+                }
+              ],
+              "education": [
+                {
+                  "institution": "",
+                  "degree": "",
+                  "field": "",
+                  "graduation_date": ""
+                }
+              ]
+            }
+            """.formatted(resumeText);
 
-        return callAI(systemPrompt, resumeText);
+        return callAI(systemPrompt, userPrompt);
     }
-
-    // =========================================
-    // ⚙️ CORE AI CALL (REUSABLE)
-    // =========================================
+    //  AI CALL (REUSABLE)
     private String callAI(String systemPrompt, String userContent) {
-
-        return webClient.post()
+        String rawResponse = webClient.post()
                 .uri("/chat/completions")
                 .bodyValue(Map.of(
                         "model", model,
@@ -106,7 +121,17 @@ public class AiService {
                         }
                 ))
                 .retrieve()
+                .onStatus(status -> status.isError(), response ->
+                        response.bodyToMono(String.class)
+                                .map(body -> new RuntimeException("Gemini error: " + body))
+                )
                 .bodyToMono(String.class)
                 .block();
-    }
-}
+
+        try {
+            JsonNode root = objectMapper.readTree(rawResponse);
+            return root.path("choices").get(0).path("message").path("content").asText();
+        } catch (Exception e) {
+            return rawResponse; // fallback to raw if parsing fails
+        }
+    }}

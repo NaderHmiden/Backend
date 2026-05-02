@@ -19,10 +19,10 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
 
-    // ADD THIS - skip filter for public routes
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
+        System.out.println("🔍 Request path: " + path); // ✅ add this
         return path.equals("/api/users/register") || path.equals("/api/users/login");
     }
 
@@ -50,6 +50,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             String token = authHeader.substring(7);
+            System.out.println("Token received: " + token);
 
             Long userId = jwtUtil.extractUserId(token);
             request.setAttribute("userId", userId);
@@ -61,6 +62,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (Exception e) {
+            System.out.println("Token error: " + e.getMessage());
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"message\":\"Invalid token\"}");
         }
